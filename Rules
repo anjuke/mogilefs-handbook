@@ -17,18 +17,28 @@ compile '/stylesheet/' do
   # don’t filter or layout
 end
 
+compile '/reset/' do
+  # don’t filter or layout
+end
+
 compile '*' do
   if item.binary?
     # don’t filter binary items
   else
     filter :erb
-    filter :redcarpet
+    filter :redcarpet, :options => {:no_intra_emphasis => true , :tables => true,
+      :fenced_code_blocks => true, :autolink => true, :strikethrough => true,
+      :lax_spacing => true, :space_after_headers => true}
     layout 'default'
   end
 end
 
 route '/stylesheet/' do
   '/style.css'
+end
+
+route '/reset/' do
+  '/reset.css'
 end
 
 route '*' do

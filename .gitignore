@@ -1,4 +1,7 @@
 Gemfile.lock
 
+
+*.swp
+crash.log
 /output
 /tmp

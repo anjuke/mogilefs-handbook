@@ -1,101 +1,411 @@
-* {
+body {
+  padding: 0;
+  margin: 0;
+  text-align: center;
+  color: black;
+  background-color: #465158;
+}
+
+div#doc-head {
+  width: 100%;
+}
+
+div#doc-head a {
+  background-color: inherit;
+  font-weight: bold;
+  margin: 6px 0 6px 4px;
+  line-height: 1.2em;
+  color: #ffffff;
+  padding: 0.4em 0.8em;
+  border: none;
+  border-radius: 3px;
+}
+
+#doc-logo {
+  display: block;
+  float: left;
+  font-size: 20px;
+}
+
+div.document {
+  text-align: left;
+  background-color: #E8ECEF;
+}
+
+div.documentwrapper {
+  float: left;
+  width: 100%;
+  background-color: #E8ECEF;
+}
+
+div.bodywrapper {
+  background-color: #FFF;
+  border-left: 1px solid #CCC;
+  border-bottom: 1px solid #CCC;
+  margin: 0 0 0 16em;
+}
+
+div.sidebar {
+  margin: 0;
+  margin-left: -100px;
+  float: left;
+  top: 3em;
+  left: 0;
+  padding: 0 1em;
+  width: 14em;
+  text-align: left;
+  background-color: #E8ECEF;
+}
+
+div.sidebarwrapper {
+  padding: 0;
+}
+
+
+/* Some simple Github-like styles, with syntax highlighting CSS via Pygments. */
+.md {
+  /* background-color: #eeeeee; */
+  border-radius: 3px;
+  margin: 0;
+  /* padding: 3px; */
+}
+
+.md article {
+  /* padding: 30px; */
+  border: 1px solid #cacaca;
+  background-color: white;
+  /* Pygments coloring */
+}
+
+.md article > :first-child {
+  margin-top: 0 !important;
+}
+
+.md article h1 {
+  font-size: 30px;
+  margin-bottom: 10px;
+  color: black;
+}
+
+.md article h2 {
+  font-size: 26px;
+  margin: 20px 0 10px;
+  color: black;
+  border-bottom: 1px solid #cccccc;
+}
+
+.md article h3 {
+  font-size: 20px;
+  margin: 20px 0 10px;
+}
+
+.md article h4 {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 20px 0 10px;
+}
+
+.md article h5 {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 20px 0 10px;
+}
+
+.md article h6 {
+  color: #777777;
+  font-size: 16px;
+  font-weight: bold;
+  margin: 20px 0 10px;
+}
+
+.md article hr {
+  background: transparent url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAECAYAAACtBE5DAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6OENDRjNBN0E2NTZBMTFFMEI3QjRBODM4NzJDMjlGNDgiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6OENDRjNBN0I2NTZBMTFFMEI3QjRBODM4NzJDMjlGNDgiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo4Q0NGM0E3ODY1NkExMUUwQjdCNEE4Mzg3MkMyOUY0OCIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo4Q0NGM0E3OTY1NkExMUUwQjdCNEE4Mzg3MkMyOUY0OCIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PqqezsUAAAAfSURBVHjaYmRABcYwBiM2QSA4y4hNEKYDQxAEAAIMAHNGAzhkPOlYAAAAAElFTkSuQmCC) repeat-x 0 0;
+  border: 0 none;
+  height: 4px;
+  margin: 15px 0;
+  padding: 0;
+}
+
+.md article p {
+  margin: 15px 0;
+}
+
+.md article pre, .md article code {
+  font: 12px Menlo, "Bitstream Vera Sans Mono", "Courier", monospace, "microsoft yahei";
+}
+
+.md article .highlight pre, .md article pre {
+  background-color: #f8f8f8;
+  border: 1px solid #cccccc;
+  font-size: 15px;
+  line-height: 19px;
+  overflow: auto;
+  border-radius: 3px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  padding: 6px 10px;
+}
+
+.md article code {
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  margin: 0 2px;
+  padding: 0 5px;
+}
+
+.md article pre > code {
+  white-space: pre;
+  border: none;
+  background: transparent;
   margin: 0;
   padding: 0;
-
-  font-family: Georgia, Palatino, Times, 'Times New Roman', sans-serif;
 }
 
-body {
-  background: #fff;
-}
-
-a {
+.md article a {
+  color: #4183c4;
   text-decoration: none;
 }
 
-a:link,
-a:visited {
-  color: #f30;
+.md article a code {
+  color: #4183c4;
+  text-decoration: none;
 }
 
-a:hover {
-  color: #f90;
+.md article blockquote {
+  border-left: 4px solid #dddddd;
+  padding-left: 11px;
+  color: #555555;
+  margin: 14px 0;
 }
 
-#main {
-  position: absolute;
-
-  top: 40px;
-  left: 280px;
-
-  width: 500px;
+.md article table {
+  font-size: 16px;
+  border-collapse: collapse;
+  margin: 20px 0 0;
+  padding: 0;
 }
 
-#main h1 {
-  font-size: 40px;
-  font-weight: normal;
-
-  line-height: 40px;
-
-  letter-spacing: -1px;
+.md article table tr {
+  border-top: 1px solid #cccccc;
+  background-color: white;
+  margin: 0;
+  padding: 0;
 }
 
-#main p {
-  margin: 20px 0;
-  
-  font-size: 15px;
-  
-  line-height: 20px;
+.md article table tr:nth-child(2n) {
+  background-color: #f8f8f8;
 }
 
-#main ul, #main ol {
-  margin: 20px;
+.md article table tr th[align="center"], .md article table tr td[align="center"] {
+  text-align: center;
 }
 
-#main li {
-  font-size: 15px;
-  
-  line-height: 20px;
+.md article table tr th, .md article table tr td {
+  border: 1px solid #cccccc;
+  text-align: left;
+  margin: 0;
+  padding: 6px 13px;
 }
 
-#main ul li {
-  list-style-type: square;
+.md article ul, .md article ol {
+  margin: 15px 0;
 }
 
-#sidebar {
-  position: absolute;
-
-  top: 40px;
-  left: 20px;
-  width: 200px;
-
-  padding: 20px 20px 0 0;
-
-  border-right: 1px solid #ccc;
-
-  text-align: right;
+.md article ul li, .md article ol li {
+  margin-top: 7px;
+  margin-bottom: 7px;
 }
 
-#sidebar h2 {
-  text-transform: uppercase;
-
-  font-size: 13px;
-
-  color: #333;
-
-  letter-spacing: 1px;
-
-  line-height: 20px;
+.md article .shadow {
+  -webkit-box-shadow: 0 5px 15px black;
+  -moz-box-shadow: 0 5px 15px black;
+  box-shadow: 0 5px 15px black;
 }
 
-#sidebar ul {
-  list-style-type: none;
-
-  margin: 20px 0;
+.md article .highlight .c {
+  color: #999988;
+  font-style: italic;
 }
 
-#sidebar li {
-  font-size: 14px;
-
-  line-height: 20px;
+.md article .highlight .err {
+  color: #a61717;
+  background-color: #e3d2d2;
 }
+
+.md article .highlight .k, .md article .highlight .o {
+  font-weight: bold;
+}
+
+.md article .highlight .cm {
+  color: #999988;
+  font-style: italic;
+}
+
+.md article .highlight .cp {
+  color: #999999;
+  font-weight: bold;
+}
+
+.md article .highlight .c1 {
+  color: #999988;
+  font-style: italic;
+}
+
+.md article .highlight .cs {
+  color: #999999;
+  font-weight: bold;
+  font-style: italic;
+}
+
+.md article .highlight .gd {
+  color: black;
+  background-color: #ffdddd;
+}
+
+.md article .highlight .gd .x {
+  color: black;
+  background-color: #ffaaaa;
+}
+
+.md article .highlight .ge {
+  font-style: italic;
+}
+
+.md article .highlight .gr {
+  color: #aa0000;
+}
+
+.md article .highlight .gh {
+  color: #999999;
+}
+
+.md article .highlight .gi {
+  color: black;
+  background-color: #ddffdd;
+}
+
+.md article .highlight .gi .x {
+  color: black;
+  background-color: #aaffaa;
+}
+
+.md article .highlight .go {
+  color: #888888;
+}
+
+.md article .highlight .gp {
+  color: #555555;
+}
+
+.md article .highlight .gs {
+  font-weight: bold;
+}
+
+.md article .highlight .gu {
+  color: purple;
+  font-weight: bold;
+}
+
+.md article .highlight .gt {
+  color: #aa0000;
+}
+
+.md article .highlight .kc, .md article .highlight .kd, .md article .highlight .kn, .md article .highlight .kp, .md article .highlight .kr {
+  font-weight: bold;
+}
+
+.md article .highlight .kt {
+  color: #445588;
+  font-weight: bold;
+}
+
+.md article .highlight .m {
+  color: #009999;
+}
+
+.md article .highlight .s {
+  color: #dd1144;
+}
+
+.md article .highlight .na {
+  color: teal;
+}
+
+.md article .highlight .nb {
+  color: #0086b3;
+}
+
+.md article .highlight .nc {
+  color: #445588;
+  font-weight: bold;
+}
+
+.md article .highlight .no {
+  color: teal;
+}
+
+.md article .highlight .ni {
+  color: purple;
+}
+
+.md article .highlight .ne, .md article .highlight .nf {
+  color: #990000;
+  font-weight: bold;
+}
+
+.md article .highlight .nn {
+  color: #555555;
+}
+
+.md article .highlight .nt {
+  color: navy;
+}
+
+.md article .highlight .nv {
+  color: teal;
+}
+
+.md article .highlight .ow {
+  font-weight: bold;
+}
+
+.md article .highlight .w {
+  color: #bbbbbb;
+}
+
+.md article .highlight .mf, .md article .highlight .mh, .md article .highlight .mi, .md article .highlight .mo {
+  color: #009999;
+}
+
+.md article .highlight .sb, .md article .highlight .sc, .md article .highlight .sd, .md article .highlight .s2, .md article .highlight .se, .md article .highlight .sh, .md article .highlight .si, .md article .highlight .sx {
+  color: #dd1144;
+}
+
+.md article .highlight .sr {
+  color: #009926;
+}
+
+.md article .highlight .s1 {
+  color: #dd1144;
+}
+
+.md article .highlight .ss {
+  color: #990073;
+}
+
+.md article .highlight .bp {
+  color: #999999;
+}
+
+.md article .highlight .vc, .md article .highlight .vg, .md article .highlight .vi {
+  color: teal;
+}
+
+.md article .highlight .il {
+  color: #009999;
+}
+
