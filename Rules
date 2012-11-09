@@ -17,6 +17,10 @@ compile '/stylesheet/' do
   # don’t filter or layout
 end
 
+compile '/favicon/' do
+  # don’t filter or layout
+end
+
 compile '/reset/' do
   # don’t filter or layout
 end
@@ -31,6 +35,10 @@ compile '*' do
       :lax_spacing => true, :space_after_headers => true}
     layout 'default'
   end
+end
+
+route '/favicon/' do
+  '/favicon.ico'
 end
 
 route '/stylesheet/' do

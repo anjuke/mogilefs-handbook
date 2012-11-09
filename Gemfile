@@ -4,4 +4,5 @@ gem 'nanoc'
 gem 'adsf'
 gem 'redcarpet'
 gem 'kramdown'
+gem 'systemu'
 
