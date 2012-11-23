@@ -1,0 +1,60 @@
+
+
+## 磁盘损坏操作流程
+
+
+1.把磁盘标记为dead
+
+```
+mogadm device mark <hostname> <devid> <status>
+```
+
+2.格式化新磁盘或损坏的磁盘, 并挂到新的目录
+
+```
+mkfs.xfs -f -i size=512 -l size=128m,lazy-count=1 -d agcount=16 /dev/sdb
+
+mkdir -p /data/mogdata/dev14xxx 
+
+mount -t xfs -o noatime,noikeep,logbufs=8 /data/mogdata/dev14xxx /dev/sdb
+
+#增加到fstab
+vim /etc/fstab
+/dev/sdb     /data/mogdata/dev14xxx    xfs    noatime,noikeep,logbufs=8    0 0
+```
+
+3.配置nginx
+
+```
+chown -R mogile.daemon /data/mogdata/dev14xxx
+
+#建议注释掉损坏的location
+vim /etc/nginx/conf.d/server.conf
+
+location /dev14xxx/ {
+    expires             max;
+    root                /data/mogdata;
+    client_max_body_size        20m;
+    client_body_temp_path       /data/mogdata/dev14xxx/temp;
+    dav_methods                 PUT DELETE MKCOL;
+    create_full_put_path        on;
+    dav_access                  user:rw group:r all:r;
+    limit_except GET {
+        allow                   10.0.0.0/8;
+        allow                   192.168.0.0/16;
+        deny                    all;
+    }
+}
+
+/etc/init.d/nginx reload
+```
+
+4.增加一个新设备
+
+```
+mogadm device add <hostname> <devid> [opts]        Add a device to a host.
+
+      <devid>              Numeric devid.  Never reuse these.
+      <hostname>           Hostname to add a device
+      --status=s           One of 'alive' or 'down'.  Defaults to 'alive'.
+```
