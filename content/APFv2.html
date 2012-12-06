@@ -1,0 +1,27 @@
+---
+title: 在APF v2里使用MogileFS
+---
+
+在APF v2里使用MogileFS
+======================
+
+概要
+----
+
+本篇文章主要介绍在安居客APF v2里如何与MogileFS打交道
+
+设置
+----
+
+APF v2里与文件存储有一个叫做APF_DFS的类库使用，这个类的主要目的是为了文件存储提供一个抽象的接口类；目前具体的实现有两种，`LocalFS`和`MogileFS`
+
+在一个v2的程序里需要进行一下配置才可以使用，针对MogileFS的存储后端，需要在config目录下添加一个`dfs.php`文件，其中内容举例如下
+
+```
+$config['images_stroage']['class'] = 'APF_DFS_MogileFS';
+$config['images_stroage']['mogilefs'] = array(
+    'domain' => 'common',  // mogilefs里的domain
+    'class' => '', // mogilefs里的class
+    'trackers' => 'tcp://10.0.1.129' // tracker的ip
+);
+```

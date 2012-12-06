@@ -1,0 +1,251 @@
+---
+title: 安装MogileFS
+---
+
+如何安装MogileFS
+================
+
+原文：[http://code.google.com/p/mogilefs/wiki/InstallHowTo][1]
+
+概要
+----
+
+**注：本文基于Linux系统**
+
+假设正准备搭建的这套MogileFS有3个基本组件，把它们分别称为tracker、db、storage，对应的进程主要是mogilefsd、mysqld和mogstored。
+
+
+安装MySQL库
+-----------
+
+MogileFS需要一个SQL数据库，这份文档里假设您安装MySQL；即使在不同的机器上运行MySQL，也需要安装客户端库，假设以RHEL5为例
+
+
+```
+yum install libdbi-dbd-mysql
+yum install mysql
+yum install mysql-devel
+```
+
+获取MogileFS
+------------
+
+MogileFS由Perl写成
+
+Perl自带CPAN，CPAN里安装MogileFS会自动解决依赖关系
+
+```
+perl -MCPAN -e shell
+
+# 或者直接
+cpan
+```
+
+在cpan控制台安装MogileFS，如果提示有推荐的依赖包，请尽量安装
+```
+cpan> install IO::AIO
+cpan> install MogileFS::Client
+cpan> install MogileFS::Utils
+
+cpan> force install MogileFS::Server # tracker需要安装，测试不通过所以需要force
+```
+
+### 安装Perl模块
+
+至于Perl模块，你需要（至少）Perlbal和Danga-Socket以及任何依赖。如果您不知道如何找到相关的模块，可以考虑使用[CPAN][2]，因为它可以安装一个模块的所有依赖。
+
+mogstored依赖于`IO::AIO`，此外也强烈推荐Perlbal的可选依赖`Perlbal::XS::HTTPHeaders`。
+
+**注意：`IO::AIO`的某些版本（在3.261和3.65之间）有一个bug可能会导致mogstored不工作，您需要把`IO::AIO`升级到3.65以上或者把`Perlbal`升级到1.76以上**
+
+安装
+----
+
+搭建一个MySQL服务器超出了本文的范围，大多数发行版都提供了便捷的安装手段，有问题请借助网络资源解决。
+
+**注：某些客户端版本可能无法使用新的MySQL密码，请使用`OLD_PASSWORD`函数**
+
+```
+mysql
+
+mysql> CREATE DATABASE mogilefs;
+mysql> GRANT ALL ON mogilefs.* TO 'mogile'@'%';
+mysql> SET PASSWORD FOR 'mogile'@'%' = OLD_PASSWORD( 'sekrit' );
+mysql> FLUSH PRIVILEGES;
+mysql> quit
+```
+
+您还需要建立表结构，将在下文给出。
+
+**注：MogileFS也可以和Postgre数据库一起使用**
+
+### 搭建Tracker和存储节点
+
+如果您确实需要进行测试，您需要一个数据库，如果您的测试数据库不是默认的配置则需要export一些环境变量
+
+```
+export MOGTEST_DBHOST="192.168.1.50"
+export MOGTEST_DBPORT="3306"
+export MOGTEST_DBUSER="mogtest"
+export MOGTEST_DBPASS="mogtest"
+export MOGTEST_DBNAME="mogtest"
+export MOGTEST_DBTYPE="MySQL"
+```
+
+搭建
+----
+
+### 数据库配置
+
+数据库需要初始化建立一些表的结构和导入基本数据，server的代码里有一个叫做`mogdbsetup`的工具来简化这个流程，本例的命令如下
+
+```
+./mogdbsetup --dbname=mogilefs --dbuser=mogile --dbpassword=sekrit
+```
+
+如果您是在另外一台主机上运行数据库，则需要给出主机名
+
+```
+./mogdbsetup --dbhost=mogiledb.yourdomain.com --dbname=mogilefs --dbuser=mogile --dbpassword=sekrit
+```
+
+**注：`mogdbsetup`在建立表的时候，未指定表的类型，所以根据MySQL的数据库默认配置，大多数时候是MySAIM的；如果您需要InnoDB，则需要指定数据库默认的表类型配置或者手工进行表的类型转换。**
+
+### Tracker配置
+
+在每个tracker服务器上都建立一个`/etc/mogilefs/mogilefsd.conf`文件，内容如下
+
+```
+db_dsn = DBI:mysql:mogilefs:host=mogiledb.yourdomain.com;port=3306;mysql_connect_timeout=5
+db_user = mogile
+db_pass = sekrit
+conf_port = 7001
+listener_jobs = 5
+node_timeout = 5
+rebalance_ignore_missing = 1
+```
+
+`db_dsn`指向您的数据库
+
+`mogilefsd`不会以root身份运行，所以您需要以一个非root用户来运行，可以用以下方式
+
+```
+useradd -m -g 2 -u 460 mogile # 为了在多台机器上不产生问题，我们统一把UID设置为460，GID设置成daemon组
+```
+
+运行tracker进程（参考下文）
+
+### 存储节点配置
+
+在每台存储服务器上都建立存储的目录（确保mogstored运行的身份有足够权限对这个目录进行读写）
+
+
+```
+mkdir /data1/mogdata
+```
+
+在每个存储节点上都建立一个`/etc/mogilefs/mogilefsd.conf`文件，内容如下
+
+httplisten=0.0.0.0:7500
+mgmtlisten=0.0.0.0:7501
+docroot=/data1/mogdata
+
+使用`mogadm`工具对MogileFS进行管理，需要tracker服务器已经运行
+
+以下命令分别完成了添加存储主机、存储设备，并查看信息
+
+**注：更详细的用法请参考"使用"章节**
+
+添加主机
+
+```
+mogadm host add image02-001 --ip=10.0.1.100 --port=7500 --status=alive
+```
+
+查看主机
+
+```
+mogadm host list
+```
+
+在存储节点机器上建立磁盘设备的目录
+
+**注：这个目录是真正写入文件的，以dev+数字为名字；可以在这个目录挂在真正的存储设备**
+
+```
+mkdir /data1/mogdata/dev1001
+```
+
+在`image02-001`上添加磁盘
+
+```
+mogadm device add image02-001 1001
+```
+
+查看磁盘设备
+
+```
+mogadm device list
+```
+
+输出类似
+
+```
+image02-001 1001: alive
+used(G) free(G) total(G)
+dev1001: alive 0.892 67.772 68.664
+```
+
+为了获取IO状况，需要使用`iostat`命令，它在`sysstat`包里
+
+```
+yum install sysstat
+```
+
+运行MogileFS
+------------
+
+**更多参数请参考"使用"章节**
+
+### 运行存储节点
+
+用以下命令运行存储节点
+
+**这里也禁止使用root用户身份，以免引起不必要的问题**
+
+```
+mogstored --daemon
+
+# 切换用户执行
+su mogile -c "mogstored --daemon"
+```
+
+### 运行tracker
+
+tracker无法以root启动，使用如下命令切换用户执行
+
+```
+su mogile -c "mogilefsd -c /etc/mogilefs/mogilefsd.conf --daemon"
+```
+
+检查进程是否成功运行
+
+```
+ps aux | grep mogilefsd
+```
+
+接下来
+------
+
+如果遇到问题，可以参考[故障解决][3]
+
+如果是关于使用，则可以参考[使用][4]
+
+
+[1]: http://code.google.com/p/mogilefs/wiki/InstallHowTo
+[2]: http://cpan.org/
+[3]: #
+[4]: #
+
+<!-- vim: set ft=markdown: -->
+
